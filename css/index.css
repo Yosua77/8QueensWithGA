@@ -25,6 +25,7 @@ body {
     line-height: 1.75;
     font-weight: 400;
     font-family: var(--font);
+    color: #212121;
 }
 
 input::-webkit-outer-spin-button,
