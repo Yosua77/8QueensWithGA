@@ -1,12 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8 Queens Problems</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
-    
+    <section class="screen">
+        <div class="details-section">
+            <div class="inputs">
+                <label for="population">Population Size</label>
+                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="population" id="population">
+                <label for="generation">Generations</label>
+                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="generation" id="generation">
+                <label for="crossover">Crossover Probability</label>
+                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="crossover" id="crossover">
+                <label for="mutation">Mutation Probability</label>
+                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="mutation" id="mutation">
+            </div>
+            <div style="width: calc(100% - 11px);">
+                <table>
+                    <colgroup>
+                        <col style="width:80%">
+                        <col style="width:20%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <td>Solution</td>
+                            <td>Fitness</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="tables">
+                <table>
+                    <colgroup>
+                        <col style="width:80%">
+                        <col style="width:20%">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                        <tr>
+                            <td>Halo</td>
+                            <td>Halo</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="board-section">
+            <h4 class="title">Solution - 1</h4>
+            <div class="board">
+            </div>
+        </div>
+    </section>
+    <script src="index.js"></script>
 </body>
+
 </html>
