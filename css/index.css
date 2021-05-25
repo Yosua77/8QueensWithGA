@@ -9,6 +9,9 @@
 
  :root {
     --font: 'Overpass', sans-serif;
+    --lightChocolate: antiquewhite;
+    --chocolate: burlywood;
+    --darkChocolate: #582f0e;
     --thumbBG: #a68a64;
     --scrollbarBG: rgba(0, 0, 0, 0.029);
 }
@@ -72,10 +75,15 @@ small,
 .details-section {
     width: 40%;
     height: 100%;
-    background-color: antiquewhite;
+    background-color: var(--lightChocolate);
     padding: 1rem 5%;
     display: flex;
     flex-direction: column;
+}
+
+.solution-table {
+    width: 100%;
+    flex: 1;
 }
 
 .details-section table {
@@ -88,6 +96,9 @@ small,
 }
 
 .tables {
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--thumbBG) var(--scrollbarBG);
 }
@@ -106,36 +117,48 @@ thead {
     font-weight: 600;
 }
 
-.tables {
+.tables>div {
     width: 100%;
-    flex: 1;
-    overflow: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-tbody tr:hover {
+.tables>div:hover {
     background-color: rgba(0, 0, 0, 0.133) !important;
     cursor: pointer;
 }
 
-tbody tr:nth-child(even) {
+.tables>div:nth-child(even) {
     background-color: rgba(255, 255, 255, 0.37);
 }
 
-td {
+.tables .pos {
+    width: 80%;
+}
+
+.tables .fitness {
+    width: 20%;
+}
+
+.tables>div {
     padding: .5rem;
 }
 
 .inputs {
+    margin-bottom: 1rem;
+}
+
+.inputs div:not(:last-of-type) {
     width: 100%;
-    height: 45vh;
     display: flex;
-    flex-direction: column;
-    margin-bottom: 2rem;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .inputs input {
-    width: 100%;
-    padding: 1rem .5rem;
+    width: 50%;
+    padding: .5rem;
     font-size: 1.333rem;
     font-family: var(--font);
     outline: none;
@@ -143,14 +166,18 @@ td {
     background-color: rgba(255, 255, 255, 0.623);
 }
 
-.inputs label:not(:first-of-type) {
+.inputs div:first-of-type input {
+    width: 4rem;
+}
+
+.inputs div:not(:first-of-type) {
     margin-top: 1rem;
 }
 
 .board-section {
     flex: 1;
     height: 100%;
-    background-color: burlywood;
+    background-color: var(--chocolate);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -160,14 +187,26 @@ td {
 .board-section .title {
     align-self: flex-start;
     margin-left: 15%;
-    color: #582f0e;
+    color: var(--darkChocolate);
 }
 
 .board {
     width: 70%;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+}
+
+.item {
+    position: relative;
+}
+
+.item:before {
+    content: attr(data-before);
+    position: absolute;
+    left: .2rem;
+    top: .2rem;
+    opacity: .3;
 }
 
 .item.black {
@@ -182,4 +221,27 @@ td {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-image: url("https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png");
+}
+
+.start {
+    background-color: var(--darkChocolate);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: .5rem;
+    transition: filter .3s;
+}
+
+.start:hover {
+    cursor: pointer;
+    filter: brightness(120%);
+}
+
+.start:active {
+    filter: brightness(80%);
+}
+
+.start p {
+    font-family: var(--font);
+    color: #fff;
 }

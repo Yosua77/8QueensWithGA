@@ -7,81 +7,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8 Queens Problems</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
     <section class="screen">
         <div class="details-section">
             <div class="inputs">
-                <label for="population">Population Size</label>
-                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="population" id="population">
-                <label for="generation">Generations</label>
-                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="generation" id="generation">
-                <label for="crossover">Crossover Probability</label>
-                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="crossover" id="crossover">
-                <label for="mutation">Mutation Probability</label>
-                <input type="text" onkeypress='validate(event)' placeholder="0.00" name="mutation" id="mutation">
+                <div>
+                    <label for="grid">Board Size(N queens for NxN grid)</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="0" name="grid" id="grid" value="8">
+                </div>
+                <div>
+                    <label for="population">Population Size</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="0" name="population" id="population">
+                </div>
+                <div>
+                    <label for="generation">Generations</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="0" name="generation" id="generation">
+                </div>
+                <div>
+                    <label for="crossover">Crossover Probability</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00" name="crossover" id="crossover">
+                </div>
+                <div>
+                    <label for="mutation">Mutation Probability</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00" name="mutation" id="mutation">
+                </div>
+                <div class="start">
+                    <p>START</p>
+                </div>
             </div>
-            <div style="width: calc(100% - 11px);">
-                <table>
-                    <colgroup>
-                        <col style="width:80%">
-                        <col style="width:20%">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <td>Solution</td>
-                            <td>Fitness</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="tables">
-                <table>
-                    <colgroup>
-                        <col style="width:80%">
-                        <col style="width:20%">
-                    </colgroup>
-                    <tbody>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                        <tr>
-                            <td>Halo</td>
-                            <td>Halo</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="solution-table">
+                <div style="width: calc(100% - 11px);">
+                    <table>
+                        <colgroup>
+                            <col style="width:80%">
+                            <col style="width:20%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <td>Solution</td>
+                                <td>Fitness</td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="tables">
+                </div>
             </div>
         </div>
         <div class="board-section">
@@ -90,7 +63,103 @@
             </div>
         </div>
     </section>
-    <script src="index.js"></script>
 </body>
+
+<script>
+    var generations = [];
+    $(document).ready(function() {
+        $('.board').css('height', $('.board').css('width'));
+        $('.tables').css('height', `calc(100 - ${$('.solution-tables').css('height')})`);
+        let boardSize = $('#grid').val();
+        resizeBoard(boardSize);
+        //cara ngisi queen
+        //$(`.item[row="${row}"][column="${column}"]`).addClass('queen');
+    });
+
+    $(window).resize(function() {
+        $('.board').css('height', $('.board').css('width'));
+    });
+
+    $('input[type="text"]').blur(function() {
+        if ($(this).val().length != 0) {
+            let val = $(this).val();
+            $(this).val(Number(val));
+        }
+    });
+
+    $('#grid').blur(function() {
+        let boardSize = $(this).val();
+        if (boardSize < 4 && boardSize != "") {
+            $(this).val(4);
+            boardSize = 4;
+        }
+        resizeBoard(boardSize)
+    })
+
+    function validate(evt, checkDot) {
+        var theEvent = evt || window.event;
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+            // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /^\d+$/;
+        if (key == '.' && checkDot) {
+            let text = evt.target.value;
+            console.log(text.indexOf('.'));
+            if (text.indexOf('.') != -1) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
+        } else if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    $('.tables').on('click', 'div', function() {
+        populateBoard($(this).attr('id'));
+    });
+
+    function populateBoard(index) {
+        $('.board .item').removeClass('queen');
+        let queenPos = $(`#${index} .pos`).text();
+        queenPos = queenPos.split(' | ');
+        for (let i = 0; i < queenPos.length; i++) {
+            $(`.board .item[row="${queenPos[i]}"][col="${i}"]`).addClass('queen');
+        }
+    }
+
+    function resizeBoard(size) {
+        $('.board').css('grid-template-columns', `repeat(${size},1fr)`);
+        $('.board').css('grid-template-rows', `repeat(${size},1fr)`);
+        $('.board').empty();
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                $('.board').append(`<div class="item ${(i + j) % 2 == 0? 'white' : 'black'}" data-before="${i == 0 || j == 0 ? i + j : ''}" row="${i}" col="${j}"></div>`);
+            }
+        }
+    }
+
+    function populateTable(DNAs) {
+        $('.tables').empty();
+        for (let i = 0; i < DNAs.length; i++) {
+            $('.tables').append(`<div id="${i}"><div class="pos">${DNAs[i].valueString()}</div><div class="fitness">${DNAs[i].fitness}</div></tr>`)
+        }
+    }
+
+    $('.start').click(function() {
+        let boardSize = $('#grid').val();
+        let popSize = $('#population').val();
+        let maxGen = $('#generation').val();
+        let crossProb = $('#crossover').val();
+        let mutProb = $('#mutation').val();
+        if (boardSize && popSize && maxGen && crossProb && mutProb) init(boardSize, popSize, maxGen, crossProb, mutProb);
+        else alert('Some fields are still empty');
+    });
+</script>
+<script src="js/index.js"></script>
 
 </html>
