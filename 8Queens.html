@@ -23,16 +23,16 @@
                     <input type="text" onkeypress='validate(event,false)' placeholder="0" name="population" id="population">
                 </div>
                 <div>
-                    <label for="generation">Generations</label>
+                    <label for="generation">Max Generations</label>
                     <input type="text" onkeypress='validate(event,false)' placeholder="0" name="generation" id="generation">
                 </div>
                 <div>
-                    <label for="crossover">Crossover Probability</label>
-                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00" name="crossover" id="crossover">
+                    <label for="crossover">Crossover Rate</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00 - 1.00" name="crossover" id="crossover">
                 </div>
                 <div>
-                    <label for="mutation">Mutation Probability</label>
-                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00" name="mutation" id="mutation">
+                    <label for="mutation">Mutation Rate</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00 - 1.00" name="mutation" id="mutation">
                 </div>
                 <div class="start">
                     <p>START</p>
@@ -66,24 +66,25 @@
 </body>
 
 <script>
-    var generations = [];
     $(document).ready(function() {
         $('.board').css('height', $('.board').css('width'));
-        $('.tables').css('height', `calc(100 - ${$('.solution-tables').css('height')})`);
+        $('.solution-table').css('height', `calc(100% - ${$('.inputs').css('height')})`);
         let boardSize = $('#grid').val();
         resizeBoard(boardSize);
-        //cara ngisi queen
-        //$(`.item[row="${row}"][column="${column}"]`).addClass('queen');
     });
 
     $(window).resize(function() {
         $('.board').css('height', $('.board').css('width'));
+        $('.solution-table').css('height', `calc(100% - ${$('.inputs').css('height')})`);
     });
 
     $('input[type="text"]').blur(function() {
         if ($(this).val().length != 0) {
             let val = $(this).val();
             $(this).val(Number(val));
+            if ($(this).attr('id') == 'mutation' || $(this).attr('id') == 'crossover') {
+                if (val > 1) $(this).val(1);
+            }
         }
     });
 
@@ -93,7 +94,7 @@
             $(this).val(4);
             boardSize = 4;
         }
-        resizeBoard(boardSize)
+        resizeBoard(boardSize);
     })
 
     function validate(evt, checkDot) {
@@ -101,7 +102,6 @@
         if (theEvent.type === 'paste') {
             key = event.clipboardData.getData('text/plain');
         } else {
-            // Handle key press
             var key = theEvent.keyCode || theEvent.which;
             key = String.fromCharCode(key);
         }
@@ -150,13 +150,21 @@
         }
     }
 
+    var generations = [];
     $('.start').click(function() {
         let boardSize = $('#grid').val();
+        if (boardSize < 4 && boardSize != "") {
+            $(this).val(4);
+            boardSize = 4;
+        }
+        resizeBoard(boardSize);
+
         let popSize = $('#population').val();
         let maxGen = $('#generation').val();
-        let crossProb = $('#crossover').val();
-        let mutProb = $('#mutation').val();
-        if (boardSize && popSize && maxGen && crossProb && mutProb) init(boardSize, popSize, maxGen, crossProb, mutProb);
+        let crossRate = $('#crossover').val();
+        let mutRate = $('#mutation').val();
+
+        if (boardSize && popSize && maxGen && crossRate && mutRate) init(boardSize, popSize, maxGen, crossRate, mutRate);
         else alert('Some fields are still empty');
     });
 </script>
