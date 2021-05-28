@@ -1,16 +1,24 @@
 function init(boardSize, popSize, maxGen, crossRate, mutRate) {
-    generations = [];
-    generations.push(new Population(boardSize, popSize, crossRate, mutRate, true));
+    let population = new Population(boardSize, popSize, crossRate, mutRate, true);
+    console.log(population.DNAs.length);
     let timer = setInterval(function() {
-        generations[generations.length - 1].calAllFitness();
-        generations[generations.length - 1].NaturalSelection();
-        let newGeneration = generations[generations.length - 1].Generate();
-        let isFinished = generations[generations.length - 1].isFinished();
-        if (isFinished || generations.length == maxGen) {
-            populateTable(generations[generations.length - 1].DNAs);
+        population.calAllFitness();
+        if (population.isFinished() || population.generationCount == maxGen) {
+            populateTable(population.DNAs);
             clearInterval(timer);
-        } else generations.push(newGeneration);
-        $("#currentGen").text(generations.length);
+        } else {
+            population.NaturalSelection();
+            console.log('Mating Pool :');
+            console.log(population.matingPool);
+            console.log('Old DNAs');
+            console.log(population.DNAs);
+            population.Generate();
+            console.log('New DNAs');
+            console.log(population.DNAs);
+            console.log('DNA Size : ' + population.DNAs.length);
+            console.log('Generation : ' + population.generationCount);
+        }
+        $("#currentGen").text(population.generationCount);
     }, 100);
 
 }
@@ -36,86 +44,90 @@ function DNA() {
     //[Constructor]
 
     //Gene(1 Queen Position)
-    this.genes = [];
+    var self = this;
+    self.genes = [];
 
     //probability score of will it be likely choose
-    this.prob = 0;
+    self.prob = 0;
 
     //Fitness score(returns n queen alive)
-    this.fitness = 0;
+    self.fitness = 0;
 
     //[END Constructor]
 
     //Fill genes with random position(called by Population on first initialization)
-    this.fillRandomGenes = function(boardSize) {
+    self.fillRandomGenes = function(boardSize) {
         for (let i = 0; i < boardSize; i++) {
-            this.genes.push(Math.floor(Math.random() * boardSize));
+            self.genes.push(Math.floor(Math.random() * boardSize));
         }
     }
 
-    this.valueString = function() {
-        return this.genes.join(' | ');
+    self.valueString = function() {
+        return self.genes.join(' | ');
     }
 
-    this.calculateProb = function(fitnessSum) {
-        return this.prob = this.fitness / fitnessSum;
+    self.calculateProb = function(fitnessSum) {
+        return self.prob = self.fitness / fitnessSum;
     }
 
-    this.calculateFitness = function() {
+    self.calculateFitness = function() {
         //In this particular project, the fitness calculated by how many queen is alive
 
         //Diagonal score for comparing
         let upRightDownLeft = [];
         let upLeftDownRight = [];
         //Status for each position : 1 if alive
-        let statuses = Array(this.genes.length).fill(1);
-        let score = this.genes.length;
+        let statuses = Array(self.genes.length).fill(1);
+        let score = self.genes.length;
 
-        for (let i = 0; i < this.genes.length; i++) {
-            upRightDownLeft.push(this.genes[i] + i);
-            upLeftDownRight.push(Math.abs(this.genes[i] - i));
+        for (let i = 0; i < self.genes.length; i++) {
+            upRightDownLeft.push(self.genes[i] + i);
+            upLeftDownRight.push(Math.abs(self.genes[i] - i));
 
         }
 
-        for (let i = 0; i < this.genes.length - 1; i++) {
-            for (let j = i + 1; j < this.genes.length; j++) {
-                if ((this.genes[i] == this.genes[j] || upRightDownLeft[i] == upRightDownLeft[j] || upLeftDownRight[i] == upLeftDownRight[j]) && (statuses[i] == 1 || statuses[j] == 1)) {
-                    if (statuses[i] == 1) score -= 1;
-                    if (statuses[j] == 1) score -= 1;
+        for (let i = 0; i < self.genes.length - 1; i++) {
+            for (let j = i + 1; j < self.genes.length; j++) {
+                if ((self.genes[i] == self.genes[j] || upRightDownLeft[i] == upRightDownLeft[j] || upLeftDownRight[i] == upLeftDownRight[j])) {
                     statuses[i] = 0;
                     statuses[j] = 0;
                 }
             }
         }
+        for (let i = 0; i < statuses.length; i++) {
+            if (statuses[i] == 0) score--;
+        }
 
-        //Fitness score will be multiply by 2 so the higher fitness would more likely to be picked
-        this.fitness = score;
-        return this.fitness += this.fitness;
+        //Fitness score will be multiply by itself(power by 2) so the higher fitness would more likely to be picked
+        self.fitness = score;
+        return self.fitness *= self.fitness;
     }
 
     //Crossover function to produce 1 child from 2 DNA
-    this.crossover = function(partnerDNA, crossRate) {
+    self.crossover = function(partnerDNA, crossRate) {
         let child = new DNA();
-        for (let i = 0; i < this.genes.length; i++) {
-            let randNum = Math.floor(Math.random() * 10);
-            if (randNum <= crossRate) child.genes.push(partnerDNA.genes[i]);
-            else child.genes.push(this.genes[i]);
+        for (let i = 0; i < self.genes.length; i++) {
+            let randNum = Math.random();
+            if (randNum >= crossRate) child.genes.push(partnerDNA.genes[i]); // Gene from parent B
+            else child.genes.push(self.genes[i]); // Gene from parent A
         };
         return child;
     }
 
-    this.mutate = function(mutationRate) {
-        for (let i = 0; i < this.genes.length; i++) {
+    self.mutate = function(mutationRate) {
+        for (let i = 0; i < self.genes.length; i++) {
             let rand = Math.random();
             if (rand < mutationRate) {
-                this.genes[i] = Math.floor(Math.random() * this.genes.length);
+                console.log("MUTATED");
+
+                self.genes[i] = Math.floor(Math.random() * self.genes.length);
             }
         }
     }
 
 }
 
-function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = false) {
+function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = false, generationCount = 1) {
     //[Description]
 
     //Population consist of multiple DNAs
@@ -128,22 +140,27 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
     //[END Description]
 
     //[Constructor]
+    var self = this;
 
-    this.boardSize = boardSize;
-    this.populationSize = popSize;
-    this.crossoverRate = crossRate;
-    this.mutationRate = mutRate;
+    self.boardSize = boardSize;
+    self.populationSize = popSize;
+    self.crossoverRate = crossRate;
+    self.mutationRate = mutRate;
+    self.generationCount = generationCount;
+    self.firstGeneration = firstGeneration;
 
-    this.fitnessSum = 0;
-    this.matingPool = [];
-    this.finished = false;
-    this.perfectScore = boardSize * 2;
+    self.fitnessSum = 0;
+    self.matingPool = [];
+    self.finished = false;
+    self.perfectScore = boardSize * boardSize;
 
-    this.DNAs = [];
+    self.DNAs = [];
 
-    for (let i = 0; i < this.populationSize; i++) {
-        this.DNAs.push(new DNA());
-        if (firstGeneration) this.DNAs[i].fillRandomGenes(boardSize);
+    for (let i = 0; i < self.populationSize; i++) {
+        if (self.firstGeneration) {
+            self.DNAs.push(new DNA());
+            self.DNAs[i].fillRandomGenes(boardSize);
+        }
     }
 
     //[END Constructor]
@@ -152,71 +169,88 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
     // so it can be choose if its a good DNA or not
     //and then add their fitness to fitnessSum to measure probability
     //for it to be added to the mating pool
-    this.calAllFitness = function() {
-        for (let i = 0; i < this.populationSize; i++) {
-            this.DNAs[i].calculateFitness();
-            this.fitnessSum += this.DNAs[i].fitness;
+    self.calAllFitness = function() {
+        self.fitnessSum = 0;
+        for (let i = 0; i < self.populationSize; i++) {
+            self.DNAs[i].calculateFitness();
+            self.fitnessSum += self.DNAs[i].fitness;
         }
 
-        for (let i = 0; i < this.populationSize; i++) {
-            this.DNAs[i].calculateProb(this.fitnessSum);
+        for (let i = 0; i < self.populationSize; i++) {
+            self.DNAs[i].calculateProb(self.fitnessSum);
         }
-        this.getBest();
+        self.getBest();
     }
 
     //Natural Selection is a function to select multiple DNA within this population
     //and put them to mating pool and then 2 of each random DNA from that mating pool
     //will be used to create a new DNA
-    this.NaturalSelection = function() {
-        this.matingPool = [];
-        for (let i = 0; i < this.populationSize; i++) {
-
-            let index = 0;
+    //Accept Reject is good but this is better and it was found i think in mid 2020
+    self.NaturalSelection = function() {
+        self.matingPool = [];
+        for (let i = 0; i < self.populationSize; i++) {
             let rand = Math.random();
-
-            while (rand > 0) {
-                rand -= this.DNAs[index].prob;
-                index++;
+            for (let j = 0; j < self.populationSize; j++) {
+                rand = rand - self.DNAs[j].prob;
+                if (rand < 0) {
+                    rand = Math.random();
+                    self.matingPool.push(self.DNAs[j]);
+                }
             }
-            index--;
-            let chosenDNA = this.DNAs[index];
-            this.matingPool.push(chosenDNA);
         }
     }
 
     //Create a new generation
-    this.Generate = function() {
-        let newPopulation = new Population(this.boardSize, this.populationSize, this.crossoverRate, this.mutationRate);
-        for (let i = 0; i < this.populationSize; i++) {
-            let randA = Math.floor(Math.random() * this.matingPool.length);
-            let randB = Math.floor(Math.random() * this.matingPool.length);
-            let parentA = this.matingPool[randA];
-            let parentB = this.matingPool[randB];
+    self.Generate = function() {
+        console.log('Generate : ');
+        for (let i = 0; i < self.populationSize; i++) {
+            let randA = Math.floor(Math.random() * self.matingPool.length);
+            let randB = Math.floor(Math.random() * self.matingPool.length);
+            console.log(pickOne(Math.floor(Math.random() * self.matingPool.length)));
+            let parentA = self.matingPool[randA];
+            let parentB = self.matingPool[randB];
 
-            let newChild = parentA.crossover(parentB, this.crossoverRate);
-            console.log(newChild);
-            newChild.mutate(this.mutationRate);
-            newPopulation.DNAs.push(newChild);
+            let newChild = parentA.crossover(parentB, self.crossoverRate);
+            newChild.mutate(self.mutationRate);
+            console.log('Parent 1 :' + parentA.fitness);
+            console.log('Parent 2 : ' + parentB.fitness);
+            console.log('Child : ' + newChild.fitness);
+            self.DNAs[i] = newChild;
         }
-        return newPopulation;
+        console.log('Generate End ');
+        self.generationCount++;
+    }
+
+    function pickOne(randIndex) {
+        let index = randIndex;
+        let rand = Math.random();
+        while (rand > 0) {
+            rand -= self.matingPool[index].prob;
+            if (rand < 0) {
+                return index;
+            }
+            index++;
+            if (index == self.matingPool.length) index = 0;
+        }
     }
 
     //Finding the best DNA within its population
-    this.getBest = function() {
+    self.getBest = function() {
         let worldRecord = 0.0;
         let index = 0;
-        for (let i = 0; i < this.populationSize; i++) {
-            if (this.DNAs[i].fitness > worldRecord) {
+        for (let i = 0; i < self.populationSize; i++) {
+            if (self.DNAs[i].fitness > worldRecord) {
                 index = i;
-                worldRecord = this.DNAs[i].fitness;
+                worldRecord = self.DNAs[i].fitness;
             }
         }
 
-        if (worldRecord == this.perfectScore) finished = true;
+        if (worldRecord == self.perfectScore) self.finished = true;
+        return self.DNAs[index];
     }
 
-    this.isFinished = function() {
-        return this.finished;
+    self.isFinished = function() {
+        return self.finished;
     }
 
 }
