@@ -128,12 +128,14 @@ function DNA() {
     }
 
     self.mutate = function(mutationRate) {
-        for (let i = 0; i < self.genes.length; i++) {
-            let rand = Math.random();
-            if (rand < mutationRate) {
-                console.log("MUTATED");
-                self.genes[i] = Math.floor(Math.random() * self.genes.length);
-            }
+        let rand = Math.random();
+        if (rand < mutationRate) {
+            let index1 = Math.floor(Math.random() * self.genes.length);
+            let index2 = Math.floor(Math.random() * self.genes.length);
+            while (index2 == index1) index2 = Math.floor(Math.random() * self.genes.length);
+            let temp = self.genes[index1];
+            self.genes[index1] = self.genes[index2];
+            self.genes[index2] = temp;
         }
     }
 
@@ -164,6 +166,7 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
     self.fitnessSum = 0;
     self.matingPool = [];
     self.finished = false;
+    //Perfect score will be all queens squared
     self.perfectScore = boardSize * boardSize;
 
     self.DNAs = [];
@@ -177,21 +180,22 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
 
     //[END Constructor]
 
+    //Function for sorting DNAs by fitness
+    function compare(a, b) {
+        if (a.fitness > b.fitness) {
+            return -1;
+        }
+        if (a.fitness < b.fitness) {
+            return 1;
+        }
+        return 0;
+    }
+
     //Calculate all fitness inside each DNA
     // so it can be choose if its a good DNA or not
     //and then add their fitness to fitnessSum to measure probability
     //for it to be added to the mating pool
     self.calAllFitness = function() {
-        function compare(a, b) {
-            if (a.fitness > b.fitness) {
-                return -1;
-            }
-            if (a.fitness < b.fitness) {
-                return 1;
-            }
-            return 0;
-        }
-
         self.fitnessSum = 0;
         for (let i = 0; i < self.populationSize; i++) {
             self.DNAs[i].calculateFitness();
@@ -233,12 +237,24 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
             let parentA = self.matingPool[randA];
             let parentB = self.matingPool[randB];
 
-            let newChild = parentA.crossover(parentB, self.crossoverRate);
-            newChild.mutate(self.mutationRate);
-            console.log('Parent 1 :' + parentA.fitness);
-            console.log('Parent 2 : ' + parentB.fitness);
-            console.log('Child : ' + newChild.fitness);
-            self.DNAs[i] = newChild;
+            let newChild1 = parentA.crossover(parentB, self.crossoverRate);
+            let newChild2 = parentB.crossover(parentA, self.crossoverRate);
+
+            //Mutate and calculate its fitness
+            newChild1.mutate(self.mutationRate);
+            newChild1.calculateFitness();
+            newChild2.mutate(self.mutationRate);
+            newChild2.calculateFitness();
+
+            //Compare 2 childs with the worst DNAs(Smallest Fitness) and replace it if the newChild has higher fitness
+            if (newChild1.fitness > self.DNAs[self.DNAs.length - 1].fitness) {
+                self.DNAs[self.DNAs.length - 1] = newChild1;
+                self.DNAs.sort(compare);
+            }
+            if (newChild2.fitness > self.DNAs[self.DNAs.length - 1].fitness) {
+                self.DNAs[self.DNAs.length - 1] = newChild2;
+                self.DNAs.sort(compare);
+            }
         }
         console.log('Generate End ');
         self.generationCount++;
