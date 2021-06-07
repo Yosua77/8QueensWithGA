@@ -224,6 +224,21 @@ thead {
     background-image: url("https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png");
 }
 
+.item.dead::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    opacity: .3;
+    background-color: #a03739;
+}
+
+.badQueen {
+    display: none;
+}
+
 .start {
     background-color: var(--darkChocolate);
     display: flex;
@@ -245,4 +260,57 @@ thead {
 .start p {
     font-family: var(--font);
     color: #fff;
+}
+
+.fitness-function {
+    position: fixed;
+    left: -1%;
+    top: 10%;
+    transform: rotateZ(90deg);
+    z-index: 98;
+    color: #582f0e;
+}
+
+.fitness-function::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: #582f0e;
+    transition: width .3s;
+}
+
+.fitness-function:hover {
+    cursor: pointer;
+}
+
+.fitness-function:hover::after {
+    width: 100%;
+    /* //transition: width .3s; */
+}
+
+.bg {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #2121219f;
+    z-index: 99;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1s;
+}
+
+.github {
+    width: 50px;
+    height: 50px;
+    position: fixed;
+    left: 1%;
+    bottom: 1%;
+}
+
+.github:hover {
+    cursor: pointer;
 }

@@ -8,15 +8,7 @@ function init(boardSize, popSize, maxGen, crossRate, mutRate) {
             clearInterval(timer);
         } else {
             population.NaturalSelection();
-            console.log('Mating Pool :');
-            console.log(population.matingPool);
-            console.log('Old DNAs');
-            console.log(population.DNAs);
             population.Generate();
-            console.log('New DNAs');
-            console.log(population.DNAs);
-            console.log('DNA Size : ' + population.DNAs.length);
-            console.log('Generation : ' + population.generationCount);
         }
         $("#currentGen").text(population.generationCount);
     }, 100);
@@ -46,6 +38,8 @@ function DNA() {
     //Gene(1 Queen Position)
     var self = this;
     self.genes = [];
+    //Storing all alive queen(1: alive)
+    self.badQueen = [];
 
     //probability score of will it be likely choose
     self.prob = 0;
@@ -80,36 +74,41 @@ function DNA() {
     }
 
     self.calculateFitness = function() {
-        //In this particular project, the fitness calculated by how many queen is alive
+        //In this particular project, the fitness calculated by how many queens are alive
 
-        //Diagonal score for comparing
+        //These both variables store diagonal score for each position for comparing
         let upRightDownLeft = [];
         let upLeftDownRight = [];
-        //Status for each position : 1 if alive
-        let statuses = Array(self.genes.length).fill(1);
-        console.log(statuses);
+
+        //Variable to store the score(max queens alive) and will be subtracted by the amount of dead queens
         let score = self.genes.length;
 
+        //Fill diagonal score according to its position
         for (let i = 0; i < self.genes.length; i++) {
-            console.log(i, (self.genes[i] + i), Math.abs(self.genes[i] - i));
+            //Score for diagonal to right
             upRightDownLeft.push(self.genes[i] + i);
+            //Score for diagonal to left
             upLeftDownRight.push(self.genes[i] - i);
+        }
+
+        //store dead queens for display
+        for (let i = 0; i < self.genes.length; i++) {
+            self.badQueen[i] = 1;
         }
 
         for (let i = 0; i < self.genes.length - 1; i++) {
             for (let j = i + 1; j < self.genes.length; j++) {
+                //If 2 Queens attack each other, change badQueen to zero means both queens are dead
                 if ((self.genes[i] == self.genes[j] || upRightDownLeft[i] == upRightDownLeft[j] || upLeftDownRight[i] == upLeftDownRight[j])) {
-                    statuses[i] = 0;
-                    statuses[j] = 0;
-                    console.log('index ' + i);
-                    console.log(self.genes[i] == self.genes[j], upRightDownLeft[i] == upRightDownLeft[j], upLeftDownRight[i] == upLeftDownRight[j]);
-                    console.log(upLeftDownRight);
+                    self.badQueen[i] = 0;
+                    self.badQueen[j] = 0;
                 }
             }
         }
-        console.log(statuses);
-        for (let i = 0; i < statuses.length; i++) {
-            if (statuses[i] == 0) score--;
+
+        //subtract score for each queens dead
+        for (let i = 0; i < self.badQueen.length; i++) {
+            if (self.badQueen[i] == 0) score--;
         }
 
         //Fitness score will be multiply by itself(power by 2) so the higher fitness would more likely to be picked
@@ -233,7 +232,6 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
         for (let i = 0; i < self.populationSize; i++) {
             let randA = Math.floor(Math.random() * self.matingPool.length);
             let randB = Math.floor(Math.random() * self.matingPool.length);
-            console.log(pickOne(Math.floor(Math.random() * self.matingPool.length)));
             let parentA = self.matingPool[randA];
             let parentB = self.matingPool[randB];
 

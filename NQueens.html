@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8 Queens Problem</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <p class="fitness-function">Fitness Function</p>
+    <div class="bg">
+        <img src="fitness.png" alt="">
+    </div>
+    <div class="github" onclick="openInNewTab('https://github.com/Yosua77/NQueensProblemWithGA-Developing-');" title="Github">
+        <svg width="46" height="45" viewBox="0 0 46 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 0C10.3002 0 0 10.3291 0 23.0688C0 33.2614 6.5895 41.9083 15.7301 44.9592C16.8782 45.1726 17.25 44.4574 17.25 43.85V39.5553C10.8522 40.951 9.52008 36.8332 9.52008 36.8332C8.47358 34.1668 6.96517 33.4575 6.96517 33.4575C4.87792 32.0253 7.12425 32.056 7.12425 32.056C9.43383 32.2175 10.649 34.434 10.649 34.434C12.6998 37.9597 16.0291 36.9409 17.342 36.3507C17.5471 34.8608 18.1432 33.8419 18.8025 33.2671C13.6946 32.6808 8.32408 30.7027 8.32408 21.8654C8.32408 19.3451 9.223 17.2881 10.6931 15.6733C10.4554 15.0908 9.66767 12.7436 10.9173 9.56779C10.9173 9.56779 12.8493 8.94877 17.2442 11.9323C19.0785 11.421 21.045 11.1653 23 11.1557C24.955 11.1653 26.9234 11.421 28.7615 11.9323C33.1526 8.94877 35.0807 9.56779 35.0807 9.56779C36.3323 12.7455 35.5446 15.0928 35.3069 15.6733C36.7827 17.2881 37.674 19.347 37.674 21.8654C37.674 30.7257 32.2939 32.677 27.1726 33.2479C27.9967 33.9631 28.75 35.3664 28.75 37.5195V43.85C28.75 44.4632 29.118 45.1841 30.2852 44.9573C39.4182 41.9026 46 33.2575 46 23.0688C46 10.3291 35.7017 0 23 0Z" fill="#212121"/>
+        </svg>
+    </div>
+    <section class="screen">
+        <div class="details-section">
+            <div class="inputs">
+                <div>
+                    <label for="grid">Board Size(N queens for NxN grid)</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="N" name="grid" id="grid" value="8">
+                </div>
+                <div>
+                    <label for="population">Population Size</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="0 (Ex. 100)" name="population" id="population">
+                </div>
+                <div>
+                    <label for="generation">Max Generations</label>
+                    <input type="text" onkeypress='validate(event,false)' placeholder="0 (Ex. 50)" name="generation" id="generation">
+                </div>
+                <div>
+                    <label for="crossover">Crossover Rate</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00 - 1.00 (Ex. 0.78)" name="crossover" id="crossover">
+                </div>
+                <div>
+                    <label for="mutation">Mutation Rate</label>
+                    <input type="text" onkeypress='validate(event,true)' placeholder="0.00 - 1.00 (Ex. 0.8)" name="mutation" id="mutation">
+                </div>
+                <div>
+                    <label for="currentGen">Current Generation</label>
+                    <h3 id="currentGen">0</h3>
+                </div>
+                <div class="start">
+                    <p>START</p>
+                </div>
+            </div>
+            <div class="solution-table">
+                <div style="width: calc(100% - 11px);">
+                    <table>
+                        <colgroup>
+                            <col style="width:80%">
+                            <col style="width:20%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <td>Solution</td>
+                                <td>Fitness</td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="tables">
+                </div>
+                <div class="badQueen">
+                </div>
+            </div>
+        </div>
+        <div class="board-section">
+            <h4 class="title">Solution - 1</h4>
+            <div class="board">
+            </div>
+        </div>
+    </section>
+</body>
+
+<script src="js/index.js"></script>
+<script>
+    function openInNewTab(url) {
+        window.open(url, '_blank').focus();
+    }
+
+    $(document).ready(function() {
+        $('.board').css('height', $('.board').css('width'));
+        $('.solution-table').css('height', `calc(100% - ${$('.inputs').css('height')})`);
+        let boardSize = $('#grid').val();
+        $('.title').text('');
+        $('.bg').css('display', 'none');
+        resizeBoard(boardSize);
+    });
+
+    $(window).resize(function() {
+        $('.board').css('height', $('.board').css('width'));
+        $('.solution-table').css('height', `calc(100% - ${$('.inputs').css('height')})`);
+    });
+
+    $('.bg').click(function(e) {
+        e.stopPropagation();
+        $(this).css('opacity', 0);
+        setTimeout(function() {
+            $('.bg').css('display', 'none');
+        }, 1000);
+    });
+
+    $('.bg img').click(function(e) {
+        e.stopPropagation();
+    });
+
+    $('.fitness-function').click(function() {
+        $('.bg').css('display', 'flex');
+        $('.bg').css('opacity', 1);
+    });
+
+    $('input[type="text"]').blur(function() {
+        if ($(this).val().length != 0) {
+            let val = $(this).val();
+            $(this).val(Number(val));
+            if ($(this).attr('id') == 'mutation' || $(this).attr('id') == 'crossover') {
+                if (val > 1) $(this).val(1);
+            }
+        }
+    });
+
+    $('#grid').blur(function() {
+        let boardSize = $(this).val();
+        if (boardSize < 4 && boardSize != "") {
+            $(this).val(4);
+            boardSize = 4;
+        }
+        document.title = `${boardSize} Queens Problem`;
+        resizeBoard(boardSize);
+    })
+
+    function validate(evt, checkDot) {
+        var theEvent = evt || window.event;
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /^\d+$/;
+        if (key == '.' && checkDot) {
+            let text = evt.target.value;
+            console.log(text.indexOf('.'));
+            if (text.indexOf('.') != -1) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
+        } else if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    $('.tables').on('click', 'div', function() {
+        populateBoard($(this).attr('id'));
+    });
+
+    function populateBoard(index) {
+        $('.board .item').removeClass('queen');
+        $('.board .item').removeClass('dead');
+        let queenPos = $(`#${index} .pos`).text();
+        $('.title').text(`Solution - ${index == 0 ?'1(Best Solution)' : (parseInt(index) + 1)}`);
+        queenPos = queenPos.split(' | ');
+        let badQueen = $(`.badQueen #dead${index}`).text().split('|');
+        console.log(badQueen);
+        for (let i = 0; i < queenPos.length; i++) {
+            $(`.board .item[row="${queenPos[i]}"][col="${i}"]`).addClass('queen');
+            if (badQueen[i] == 0) $(`.board .item[row="${queenPos[i]}"][col="${i}"]`).addClass('dead');
+        }
+    }
+
+    function resizeBoard(size) {
+        $('.board').css('grid-template-columns', `repeat(${size},1fr)`);
+        $('.board').css('grid-template-rows', `repeat(${size},1fr)`);
+        $('.board').empty();
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                $('.board').append(`<div class="item ${(i + j) % 2 == 0? 'white' : 'black'}" data-before="${i == 0 || j == 0 ? i + j : ''}" row="${i}" col="${j}"></div>`);
+            }
+        }
+    }
+
+    function populateTable(DNAs) {
+        console.log($('.tables').children().length);
+        for (let i = 0; i < DNAs.length; i++) {
+            $('.badQueen').append(`<div id="dead${i}">${DNAs[i].badQueen.join('|')}</div>`);
+            $('.tables').append(`<div id="${i}"><div class="pos">${DNAs[i].valueString()}</div><div class="fitness">${DNAs[i].fitness}</div></tr>`)
+        }
+    }
+
+    $('.start').click(function() {
+        $('.tables').empty();
+        $('.badQueen').empty();
+        $('.title').text('');
+        let boardSize = $('#grid').val();
+        if (boardSize < 4 && boardSize != "") {
+            $(this).val(4);
+            boardSize = 4;
+        }
+        resizeBoard(boardSize);
+
+        let popSize = $('#population').val();
+        let maxGen = $('#generation').val();
+        let crossRate = $('#crossover').val();
+        let mutRate = $('#mutation').val();
+
+        if (boardSize && popSize && maxGen && crossRate && mutRate) init(boardSize, popSize, maxGen, crossRate, mutRate);
+        else alert('Some fields are still empty');
+    });
+</script>
+
+</html>
