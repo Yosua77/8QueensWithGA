@@ -69,10 +69,12 @@ function DNA() {
         self.genes = newGenes;
     }
 
+    //for displaying position : 0|1|2|3|4|5|6|...
     self.valueString = function() {
         return self.genes.join(' | ');
     }
 
+    //calculate prob to be selected
     self.calculateProb = function(fitnessSum) {
         return self.prob = self.fitness / fitnessSum;
     }
@@ -112,22 +114,6 @@ function DNA() {
 
         //Fitness score will be multiply by itself(power by 2) so the higher fitness would more likely to be picked
         self.fitness = score * score;
-        // let t1 = 0;
-        // let t2 = 0;
-        // let size = self.genes.length;
-        // let f1 = [];
-        // let f2 = [];
-        // for (let i = 0; i < size; i++) {
-        //     f1[i] = (self.genes[i] - i);
-        //     f2[i] = ((1 + size) - self.genes[i] - i);
-        // }
-        // f1.sort();
-        // f2.sort();
-        // for (let i = 1; i < size; i++) {
-        //     if (f1[i] == f2[i - 1]) t1++;
-        //     if (f2[i] == f2[i - 1]) t2++;
-        // }
-        // self.fitness = t1 + t2;
     }
 
     //Crossover function to produce 1 child from 2 DNA
