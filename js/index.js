@@ -57,9 +57,16 @@ function DNA() {
 
     //Fill genes with random position(called by Population on first initialization)
     self.fillRandomGenes = function(boardSize) {
-        for (let i = 0; i < boardSize; i++) {
-            self.genes.push(Math.floor(Math.random() * boardSize));
+        function shuffle(array) {
+            array.sort(() => Math.random() - 0.5);
         }
+
+        let newGenes = [];
+        for (let i = 0; i < boardSize; i++) {
+            newGenes.push(i);
+        }
+        shuffle(newGenes);
+        self.genes = newGenes;
     }
 
     self.valueString = function() {
@@ -78,12 +85,13 @@ function DNA() {
         let upLeftDownRight = [];
         //Status for each position : 1 if alive
         let statuses = Array(self.genes.length).fill(1);
+        console.log(statuses);
         let score = self.genes.length;
 
         for (let i = 0; i < self.genes.length; i++) {
+            console.log(i, (self.genes[i] + i), Math.abs(self.genes[i] - i));
             upRightDownLeft.push(self.genes[i] + i);
-            upLeftDownRight.push(Math.abs(self.genes[i] - i));
-
+            upLeftDownRight.push(self.genes[i] - i);
         }
 
         for (let i = 0; i < self.genes.length - 1; i++) {
@@ -91,16 +99,35 @@ function DNA() {
                 if ((self.genes[i] == self.genes[j] || upRightDownLeft[i] == upRightDownLeft[j] || upLeftDownRight[i] == upLeftDownRight[j])) {
                     statuses[i] = 0;
                     statuses[j] = 0;
+                    console.log('index ' + i);
+                    console.log(self.genes[i] == self.genes[j], upRightDownLeft[i] == upRightDownLeft[j], upLeftDownRight[i] == upLeftDownRight[j]);
+                    console.log(upLeftDownRight);
                 }
             }
         }
+        console.log(statuses);
         for (let i = 0; i < statuses.length; i++) {
             if (statuses[i] == 0) score--;
         }
 
         //Fitness score will be multiply by itself(power by 2) so the higher fitness would more likely to be picked
-        self.fitness = score;
-        return self.fitness *= self.fitness;
+        self.fitness = score * score;
+        // let t1 = 0;
+        // let t2 = 0;
+        // let size = self.genes.length;
+        // let f1 = [];
+        // let f2 = [];
+        // for (let i = 0; i < size; i++) {
+        //     f1[i] = (self.genes[i] - i);
+        //     f2[i] = ((1 + size) - self.genes[i] - i);
+        // }
+        // f1.sort();
+        // f2.sort();
+        // for (let i = 1; i < size; i++) {
+        //     if (f1[i] == f2[i - 1]) t1++;
+        //     if (f2[i] == f2[i - 1]) t2++;
+        // }
+        // self.fitness = t1 + t2;
     }
 
     //Crossover function to produce 1 child from 2 DNA
@@ -119,7 +146,6 @@ function DNA() {
             let rand = Math.random();
             if (rand < mutationRate) {
                 console.log("MUTATED");
-
                 self.genes[i] = Math.floor(Math.random() * self.genes.length);
             }
         }
