@@ -196,6 +196,16 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
     //and then add their fitness to fitnessSum to measure probability
     //for it to be added to the mating pool
     self.calAllFitness = function() {
+        function compare(a, b) {
+            if (a.fitness > b.fitness) {
+                return -1;
+            }
+            if (a.fitness < b.fitness) {
+                return 1;
+            }
+            return 0;
+        }
+
         self.fitnessSum = 0;
         for (let i = 0; i < self.populationSize; i++) {
             self.DNAs[i].calculateFitness();
@@ -205,7 +215,7 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
         for (let i = 0; i < self.populationSize; i++) {
             self.DNAs[i].calculateProb(self.fitnessSum);
         }
-        self.DNAs.sort();
+        self.DNAs.sort(compare);
         self.getBest();
     }
 
