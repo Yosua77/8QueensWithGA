@@ -205,6 +205,7 @@ function Population(boardSize, popSize, crossRate, mutRate, firstGeneration = fa
         for (let i = 0; i < self.populationSize; i++) {
             self.DNAs[i].calculateProb(self.fitnessSum);
         }
+        self.DNAs.sort();
         self.getBest();
     }
 
